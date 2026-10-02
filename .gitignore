@@ -1,13 +1,30 @@
-#medical data
-.env
-projeto_odonto/
-datasets/
+# --- medical data: never committed ---
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 *.dcm
 *.jpg
+*.jpeg
 *.png
 *.zip
+.env
 
-__pycache__/
+# --- Python (python-ai) ---
 venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Go (go-service) ---
+go-service/bin/
+go-service/cmd/*/server
 *.exe
-bin/
+*.test
+
+# --- editors / OS ---
+.idea/
+.vscode/
+.DS_Store
