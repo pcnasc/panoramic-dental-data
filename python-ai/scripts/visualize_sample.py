@@ -1,4 +1,4 @@
-"""Quick visual sanity check: original radiograph vs. its segmentation label."""
+"""Quick visual sanity check: original radiograph vs. its segmentation label with overlay."""
 import argparse
 from pathlib import Path
 
@@ -18,15 +18,23 @@ def main(sample_id: str) -> None:
     if raio_x is None or mascara is None:
         raise FileNotFoundError(f"Sample '{sample_id}' not found under {DATASET_ROOT}")
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    # 1. Cria a sobreposição: converte o raio-x (1 canal) para RGB (3 canais) para suportar cores
+    sobreposicao = cv2.cvtColor(raio_x, cv2.COLOR_GRAY2RGB)
+
+    # 2. Pinta de vermelho ([255, 0, 0]) todos os pixels onde a máscara tem marcação (> 0)
+    sobreposicao[mascara > 0] = [255, 0, 0]
+
+    # 3. Altera a grade para 3 colunas e ajusta o tamanho (18, 6)
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
 
     ax1.imshow(raio_x, cmap="gray")
-    ax1.set_title("Radiografia Original (Input do Backend Go)")
     ax1.axis("off")
 
     ax2.imshow(mascara, cmap="gray")
-    ax2.set_title("Máscara de Segmentação (Gabarito da IA)")
     ax2.axis("off")
+
+    ax3.imshow(sobreposicao)
+    ax3.axis("off")
 
     plt.tight_layout()
     plt.show()
