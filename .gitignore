@@ -1,0 +1,13 @@
+#medical data
+.env
+projeto_odonto/
+datasets/
+*.dcm
+*.jpg
+*.png
+*.zip
+
+__pycache__/
+venv/
+*.exe
+bin/
