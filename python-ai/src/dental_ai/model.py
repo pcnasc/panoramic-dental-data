@@ -1,6 +1,37 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import segmentation_models_pytorch as smp
+
+
+class UNet(nn.Module):
+    """
+    U-Net com encoder pré-treinado (transfer learning).
+
+    Com só ~80 imagens de treino, uma U-Net 100% do zero (ver `UNetFromScratch`
+    abaixo) tem pouquíssimos exemplos para aprender a reconhecer texturas e
+    bordas do zero. Aqui o encoder (ResNet-34) já vem com pesos treinados em
+    1.3M de imagens do ImageNet — ele chega sabendo detectar bordas, texturas
+    e contornos, e só precisa se especializar em radiografias odontológicas.
+    Isso costuma reduzir drasticamente o número de épocas e dados necessários
+    para o modelo começar a generalizar.
+
+    Mesma assinatura da UNet antiga (`in_channels`, `out_channels`) para não
+    quebrar `train_ai.py` / `predict.py` / `test_models.py`.
+    """
+
+    def __init__(self, in_channels=1, out_channels=1, encoder_name="resnet34"):
+        super().__init__()
+        self.model = smp.Unet(
+            encoder_name=encoder_name,
+            encoder_weights="imagenet",
+            in_channels=in_channels,
+            classes=out_channels,
+            activation=None,  # mantemos logits crus; sigmoid é aplicado na loss/inferência
+        )
+
+    def forward(self, x):
+        return self.model(x)
 
 
 class DoubleConv(nn.Module):
@@ -21,8 +52,11 @@ class DoubleConv(nn.Module):
         return self.conv(x)
 
 
-class UNet(nn.Module):
+class UNetFromScratch(nn.Module):
     """
+    U-Net escrita do zero (encoder sem pré-treino), mantida aqui para estudo
+    e comparação. Não é mais usada por `train_ai.py`/`predict.py` — veja `UNet`.
+
     1. A Descida (Encoder): esmaga a radiografia sucessivas vezes, diminuindo o
        tamanho da imagem e aumentando a profundidade dos filtros, para entender
        *o que* compõe a imagem (texturas de osso, contrastes de lesão, raízes).

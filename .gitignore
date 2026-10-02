@@ -18,6 +18,12 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
+# --- model artifacts: trained weights are not source ---
+*.pth
+*.pt
+*.onnx
+python-ai/checkpoints/
+
 # --- Go (go-service) ---
 go-service/bin/
 go-service/cmd/*/server
